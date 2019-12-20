@@ -7,18 +7,25 @@ function showHello(divName: string, name: string) {
 
 enum Category { JavaScript, CSS, HTML, TypeScript, Angular }
 
-function getAllBooks(): Array<any> {
-	const books: any[] = [
+interface Book {
+	title: string;
+	author: string;
+	available: boolean;
+	category: number;
+}
+
+function getAllBooks() {
+	const books = [
 		{ title: 'Refactoring JavaScript', author: 'Evan Burchard', available: true, category: Category.JavaScript },
 		{ title: 'JavaScript Testing', author: 'Liang Yuxian Eugene', available: false, category: Category.JavaScript },
 		{ title: 'CSS Secrets', author: 'Lea Verou', available: true, category: Category.CSS },
 		{ title: 'Mastering JavaScript Object-Oriented Programming', author: 'Andrea Chiarelli', available: true, category: Category.JavaScript }
-	];
+	] as const;
 
 	return books;
 }
 
-function logFirstAvailable(books: any[]): void {
+function logFirstAvailable(books): void {
 	const numOfBooks: number = books.length;
 	let title: string = '';
 
@@ -61,14 +68,20 @@ function getBookAuthorByIndex(index: number): [string, string] {
 	return [title, author];
 }
 
+interface Library {
+	lib: string;
+	books: number;
+	avgPagesPerBook: number;
+}
+
 function calcTotalPages(): bigint {
 	const data = [
 		{ lib: 'libName1', books: 1_000_000_000, avgPagesPerBook: 250 },
 		{ lib: 'libName2', books: 5_000_000_000, avgPagesPerBook: 300 },
 		{ lib: 'libName3', books: 3_000_000_000, avgPagesPerBook: 280 }
-	];
+	] as const;
 
-	const result = data.reduce((acc: bigint, obj: any) => {
+	const result = data.reduce((acc: bigint, obj: Library) => {
 		return acc + BigInt(obj.books * obj.avgPagesPerBook);
 	}, 0n);
 
