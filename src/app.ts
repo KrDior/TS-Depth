@@ -7,15 +7,8 @@ function showHello(divName: string, name: string) {
 
 enum Category { JavaScript, CSS, HTML, TypeScript, Angular }
 
-interface Book {
-	title: string;
-	author: string;
-	available: boolean;
-	category: number;
-}
-
-function getAllBooks(): ReadonlyArray<any> {
-	const books = [
+function getAllBooks(): ReadonlyArray<Book> {
+	const books: readonly Book[] = [
 		{ id: 1, title: 'Refactoring JavaScript', author: 'Evan Burchard', available: true, category: Category.JavaScript },
 		{ id: 2, title: 'JavaScript Testing', author: 'Liang Yuxian Eugene', available: false, category: Category.JavaScript },
 		{ id: 3, title: 'CSS Secrets', author: 'Lea Verou', available: true, category: Category.CSS },
@@ -74,28 +67,32 @@ interface Library {
 	avgPagesPerBook: number;
 }
 
-function calcTotalPages(): bigint {
-	const data = [
-		{ lib: 'libName1', books: 1_000_000_000, avgPagesPerBook: 250 },
-		{ lib: 'libName2', books: 5_000_000_000, avgPagesPerBook: 300 },
-		{ lib: 'libName3', books: 3_000_000_000, avgPagesPerBook: 280 }
-	] as const;
+// function calcTotalPages(): bigint {
+// 	const data = [
+// 		{ lib: 'libName1', books: 1_000_000_000, avgPagesPerBook: 250 },
+// 		{ lib: 'libName2', books: 5_000_000_000, avgPagesPerBook: 300 },
+// 		{ lib: 'libName3', books: 3_000_000_000, avgPagesPerBook: 280 }
+// 	] as const;
 
-	const result = data.reduce((acc: bigint, obj: Library) => {
-		return acc + BigInt(obj.books * obj.avgPagesPerBook);
-	}, 0n);
+// 	const result = data.reduce((acc: bigint, obj: Library) => {
+// 		return acc + BigInt(obj.books * obj.avgPagesPerBook);
+// 	}, 0n);
 
-	return result;
-}
+// 	return result;
+// }
 
-function getBookById(id: number): any {
+function getBookById(id: number): Book | undefined {
 	const books = getAllBooks();
 
-	return books.find((book: any) => book.id === id);
+	return books.find((book) => book.id === id);
 }
 
 function createCustomerId(name: string, id: number): string {
 	return `${name}${id}`;
+}
+
+function printBook(book: Book): void {
+	console.log(`${book.title} by ${book.author}`);
 }
 
 // Task 02.01
@@ -200,17 +197,175 @@ function createCustomerId(name: string, id: number): string {
 
 // Task 03.05
 
-function assertStringValue(value: any): asserts value is string {
-	if (typeof value !== 'string') {
-		throw new Error('value should have been a string');
+// function assertStringValue(value: any): asserts value is string {
+// 	if (typeof value !== 'string') {
+// 		throw new Error('value should have been a string');
+// 	}
+// }
+
+// function bookTitleTransform(title: string): string {
+// 	assertStringValue(title);
+
+// 	return [...title].reverse().join('');
+// }
+
+// console.log(bookTitleTransform('string'));
+// console.log(bookTitleTransform(''));
+
+
+// Task 04.01
+interface Book {
+	id: number;
+	title: string;
+	author: string;
+	available: boolean;
+	category: Category;
+	pages?: number;
+	// markDamaged?: (reason: string) => void;
+	markDamaged?: DamageLogger;
+}
+
+const myBook: Book = {
+	id: 5,
+	title: 'Colors, Backgrounds, and Gradients',
+	author: 'Eric A. Meyer',
+	available: true,
+	category: Category.CSS,
+	pages: 200,
+	markDamaged: (reason: string) => console.log(`Damaged: ${reason}`)
+
+};
+
+// printBook(myBook);
+// myBook.markDamaged('missing back cover');
+
+
+// Task 04.02
+
+interface DamageLogger {
+	(p: string): void;
+}
+
+const f = (damage: string) => console.log(`Damage reporter: ${damage}`);
+
+const logDamage: DamageLogger = f;
+// logDamage('missing back cover');
+
+// Task 04.03
+
+interface Person {
+	name: string;
+	email: string;
+}
+
+interface Author extends Person {
+	numBooksPublished: number;
+}
+
+interface Librarian extends Person {
+	department: string;
+	assistCustomer: (custName: string) => void;
+}
+
+const favoriteAuthor: Author = {
+	name: 'Boris',
+	email: 'same@test.com',
+	numBooksPublished: 4,
+};
+
+const favorityLibrarian: Librarian = {
+	name: 'Anna',
+	email: 'twoEm@test.com',
+	department: 'Classics',
+	assistCustomer(name: string) {
+		console.log(`Assist ${name}`);
+	}
+};
+
+
+// Task 04.04
+
+const offer: any = {
+	book: {
+	title: 'Essential TypeScript'
+	}
+};
+
+// console.log(offer?.magazine);
+
+// Task 04.05
+
+type BookProperties = keyof Book;
+
+function getBookProp(book: Book, prop: BookProperties): any {
+	if (typeof book[prop] === 'function') {
+		return (book[prop] as Function).name;
+	}
+	if (typeof book[prop] === 'string') {
+		return book[prop];
 	}
 }
 
-function bookTitleTransform(title: string): string {
-	assertStringValue(title);
+// console.log(getBookProp(getAllBooks()[0], 'title'));
+// console.log(getBookProp(getAllBooks()[0], 'markDamaged'));
 
-	return [...title].reverse().join('');
+// Task 05.01
+
+class ReferenceItem1 {
+	title: string;
+	year: number;
+
+	constructor(newTitle: string, newYear: number) {
+		console.log('Creating a new ReferenceItem');
+		this.title = newTitle;
+		this.year = newYear;
+	}
+
+	printItem(): void {
+		console.log(`${this.title} was published in ${this.year}`);
+	}
 }
 
-console.log(bookTitleTransform('string'));
-console.log(bookTitleTransform(''));
+const ref1: ReferenceItem1 = new ReferenceItem1('Our new title', 2020);
+ref1.printItem();
+
+class ReferenceItem {
+	private _publisher: string;
+	static department: string = 'Research Dep';
+
+	get publisher(): string {
+		return this._publisher.toLocaleUpperCase();
+	}
+
+	set publisher(newPublisher: string) {
+		this._publisher = newPublisher;
+	}
+
+	constructor(public title: string, protected year: number) {
+		console.log('Creating a new ReferenceItem');
+	}
+
+	printItem(): void {
+		console.log(`${this.title} was published in ${this.year}`);
+		console.log(`Department: ${ReferenceItem.department}`);
+	}
+}
+
+const ref: ReferenceItem = new ReferenceItem('Our new title', 2020);
+ref.publisher = 'Random publisher';
+
+// Task 05.02
+
+class Encyclopedia extends ReferenceItem {
+	constructor(nweTitle: string, newYear: number, public edition: number) {
+		super(nweTitle, newYear);
+	}
+
+	printItem(): void {
+		super.printItem();
+		console.log(`Edition: ${this.edition} ${this.year}`);
+	}
+}
+
+const refBook: Encyclopedia = new Encyclopedia('Title', 2020, 3);
+refBook.printItem();
