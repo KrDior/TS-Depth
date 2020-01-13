@@ -1,11 +1,15 @@
+import { Book, Logger as DamageLogger, Person, Author, Librarian } from './interfaces';
+import { ReferenceItem1, ReferenceItem } from './classes';
+import { Category } from './enums';
+import { RefBook } from './classes/index';
+import { UniversityLibrarian } from './classes/index';
+
 showHello('greeting', 'TypeScript');
 
 function showHello(divName: string, name: string) {
 	const elt = document.getElementById(divName);
 	elt.innerText = `Hello from ${name}`;
 }
-
-enum Category { JavaScript, CSS, HTML, TypeScript, Angular }
 
 function getAllBooks(): ReadonlyArray<Book> {
 	const books: readonly Book[] = [
@@ -61,11 +65,7 @@ function getBookAuthorByIndex(index: number): [string, string] {
 	return [title, author];
 }
 
-interface Library {
-	lib: string;
-	books: number;
-	avgPagesPerBook: number;
-}
+
 
 // function calcTotalPages(): bigint {
 // 	const data = [
@@ -81,7 +81,7 @@ interface Library {
 // 	return result;
 // }
 
-function getBookById(id: number): Book | undefined {
+function getBookById(id: number): BookOrUndefined {
 	const books = getAllBooks();
 
 	return books.find((book) => book.id === id);
@@ -214,16 +214,6 @@ function printBook(book: Book): void {
 
 
 // Task 04.01
-interface Book {
-	id: number;
-	title: string;
-	author: string;
-	available: boolean;
-	category: Category;
-	pages?: number;
-	// markDamaged?: (reason: string) => void;
-	markDamaged?: DamageLogger;
-}
 
 const myBook: Book = {
 	id: 5,
@@ -242,9 +232,6 @@ const myBook: Book = {
 
 // Task 04.02
 
-interface DamageLogger {
-	(p: string): void;
-}
 
 const f = (damage: string) => console.log(`Damage reporter: ${damage}`);
 
@@ -253,19 +240,6 @@ const logDamage: DamageLogger = f;
 
 // Task 04.03
 
-interface Person {
-	name: string;
-	email: string;
-}
-
-interface Author extends Person {
-	numBooksPublished: number;
-}
-
-interface Librarian extends Person {
-	department: string;
-	assistCustomer: (custName: string) => void;
-}
 
 const favoriteAuthor: Author = {
 	name: 'Boris',
@@ -311,61 +285,48 @@ function getBookProp(book: Book, prop: BookProperties): any {
 
 // Task 05.01
 
-class ReferenceItem1 {
-	title: string;
-	year: number;
-
-	constructor(newTitle: string, newYear: number) {
-		console.log('Creating a new ReferenceItem');
-		this.title = newTitle;
-		this.year = newYear;
-	}
-
-	printItem(): void {
-		console.log(`${this.title} was published in ${this.year}`);
-	}
-}
 
 const ref1: ReferenceItem1 = new ReferenceItem1('Our new title', 2020);
 ref1.printItem();
 
-class ReferenceItem {
-	private _publisher: string;
-	static department: string = 'Research Dep';
 
-	get publisher(): string {
-		return this._publisher.toLocaleUpperCase();
-	}
-
-	set publisher(newPublisher: string) {
-		this._publisher = newPublisher;
-	}
-
-	constructor(public title: string, protected year: number) {
-		console.log('Creating a new ReferenceItem');
-	}
-
-	printItem(): void {
-		console.log(`${this.title} was published in ${this.year}`);
-		console.log(`Department: ${ReferenceItem.department}`);
-	}
-}
-
-const ref: ReferenceItem = new ReferenceItem('Our new title', 2020);
-ref.publisher = 'Random publisher';
+// const ref: ReferenceItem = new ReferenceItem('Our new title', 2020);
+// ref.publisher = 'Random publisher';
 
 // Task 05.02
 
-class Encyclopedia extends ReferenceItem {
-	constructor(nweTitle: string, newYear: number, public edition: number) {
-		super(nweTitle, newYear);
-	}
-
-	printItem(): void {
-		super.printItem();
-		console.log(`Edition: ${this.edition} ${this.year}`);
-	}
-}
-
-const refBook: Encyclopedia = new Encyclopedia('Title', 2020, 3);
+const refBook: RefBook = new RefBook('Title', 2020, 3);
 refBook.printItem();
+
+// Task 05.03
+
+const refBook2: RefBook = new RefBook('Title', 2020, 3);
+refBook2.printItem();
+// console.log(refBook2);
+
+// Task 05.04
+
+
+
+const favoriteLibrarian: Librarian = new UniversityLibrarian();
+favoriteLibrarian.name = 'Anna';
+favoriteLibrarian.assistCustomer('Boris');
+
+
+// Task 05.05
+
+type PersonBook = Book & Person;
+
+const personBook: PersonBook = {
+	name: 'Anna',
+	email: 'anna@gmail.com',
+	title: 'Introdaction yo union types',
+	available: true,
+	author: 'Unknown',
+	category: Category.TypeScript,
+	id: 1,
+};
+
+// console.log(personBook);
+
+type BookOrUndefined = Book | undefined;
