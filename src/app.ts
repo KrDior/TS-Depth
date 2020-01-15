@@ -1,8 +1,8 @@
-import { Book, Logger as DamageLogger, Person, Author, Librarian } from './interfaces';
+import { Book, Logger as DamageLogger, Person, Author, Librarian, Magazine } from './interfaces';
 import { ReferenceItem1, ReferenceItem } from './classes';
 import { Category } from './enums';
-import { RefBook } from './classes/index';
-import { UniversityLibrarian } from './classes/index';
+import { RefBook, UniversityLibrarian, Shelf } from './classes/index';
+import { purge } from './function';
 
 showHello('greeting', 'TypeScript');
 
@@ -131,12 +131,12 @@ function printBook(book: Book): void {
 
 // Task 03.03
 
-// function createCustomer(name: string, age?: number, city?: string): void {
-// 	console.log(`Customer name: ${name}`);
+function createCustomer(name: string, age?: number, city?: string): void {
+	console.log(`Customer name: ${name}`);
 
-// 	age ? console.log(`Customer age: ${age}`) : '';
-// 	city ? console.log(`Customer city: ${city}`) : '';
-// }
+	age ? console.log(`Customer age: ${age}`) : '';
+	city ? console.log(`Customer city: ${city}`) : '';
+}
 
 // createCustomer('Ann', 12, 'Moscow');
 
@@ -330,3 +330,72 @@ const personBook: PersonBook = {
 // console.log(personBook);
 
 type BookOrUndefined = Book | undefined;
+
+
+// Task 06.05
+
+import('./classes/index').then(module => {
+	const reader = new module.Reader();
+	reader.name = 'Ann';
+	reader.take(getAllBooks()[0]);
+	console.log(reader);
+});
+
+// Task 07.01
+
+const inventory: Array<Book> = [
+	{ id: 10, title: 'The C Programming Language', author: 'K & R', available: true, category: Category.Software },
+	{ id: 11, title: 'Code Complete', author: 'Steve McConnell', available: true, category: Category.Software },
+	{ id: 12, title: '8-Bit Graphics with Cobol', author: 'A. B.', available: true, category: Category.Software },
+	{ id: 13, title: 'Cool autoexec.bat Scripts!', author: 'C. D.', available: true, category: Category.Software }
+];
+
+// const result = purge(inventory);
+// const result2 = purge([1, 2, 3, 4, '5']);
+// console.log(result2);
+
+// Task 07.02
+
+const bookShelf = new Shelf<Book>();
+inventory.forEach(book => bookShelf.add(book));
+const book = bookShelf.getFirst();
+
+console.log(book);
+
+const magazines: Array<Magazine> = [
+	{ title: 'Programming Language Monthly', publisher: 'Code Mags' },
+	{ title: 'Literary Fiction Quarterly', publisher: 'College Press' },
+	{ title: 'Five Points', publisher: 'GSU' }
+];
+
+const magazineShelf = new Shelf<Magazine>();
+magazineShelf.add(...magazines);
+
+// Task 07.03
+magazineShelf.printTitles();
+console.log(magazineShelf.find('Five Points'));
+
+// Task 07.04
+type BookRequiredField = Required<Book>;
+type UpdatedBook = Partial<Book>;
+
+const book2: BookRequiredField = {
+	id: 1,
+	title: 'Book title',
+	author: 'Ann',
+	available: false,
+	category: Category.Angular,
+	pages: 250,
+	markDamaged: null,
+};
+
+const updatedBook2: UpdatedBook = {
+	id: 1,
+	title: 'Book title',
+};
+
+type AuthorWoEmail = Omit<Author, 'email'>;
+type CreateCustomerFunctionType = (name: string, age?: number, city?: string) => void;
+
+const params: Parameters<CreateCustomerFunctionType> = ['Anna'];
+createCustomer(...params);
