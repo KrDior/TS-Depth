@@ -1,8 +1,9 @@
-import { Book, Logger as DamageLogger, Person, Author, Librarian, Magazine } from './interfaces';
+import { Book, Logger as DamageLogger, Person, Author, Librarian, Magazine, LibMgrCallback } from './interfaces';
 import { ReferenceItem1, ReferenceItem } from './classes';
 import { Category } from './enums';
 import { RefBook, UniversityLibrarian, Shelf } from './classes/index';
 import { purge } from './function';
+import Encyclopedia from './classes/encyclopedia';
 
 showHello('greeting', 'TypeScript');
 
@@ -399,3 +400,123 @@ type CreateCustomerFunctionType = (name: string, age?: number, city?: string) =>
 
 const params: Parameters<CreateCustomerFunctionType> = ['Anna'];
 createCustomer(...params);
+
+// Task 08.01
+
+const obj = new UniversityLibrarian();
+
+// Task 08.02
+
+const fLibrarian = new UniversityLibrarian();
+fLibrarian.name = 'Ann';
+console.log('!!!', fLibrarian);
+(fLibrarian as any).printLibrarian();
+fLibrarian['printLibrarian']();
+// Object.getPrototypeOf(fLibrarian).printLibrarian.apply(fLibrarian);
+
+
+// Task 08.03
+
+// fLibrarian.assistFaculty = null;
+// fLibrarian.teachCommunity = null;
+
+// Task 08.04
+
+const enc = new Encyclopedia('The best Enc', 2020, 1);
+
+
+// Task 08.05
+
+const fLibrarian2 = new UniversityLibrarian();
+fLibrarian2.name = 'Ann';
+fLibrarian2.assistCustomer('Boris');
+
+// Task 08.06
+
+const fLibrarian3 = new UniversityLibrarian();
+fLibrarian3.name = 'Ann';
+console.log(fLibrarian3.name);
+
+
+// Task 08.07
+
+const enc2 = new Encyclopedia('The best Enc', 2020, 1);
+enc2.copies = 10;
+console.log(enc2);
+
+// Task 09.01
+
+function getBookByCategory(category: Category, callback: LibMgrCallback): void {
+	setTimeout(() => {
+		try {
+			const titles: string[] = getBookTitlesByCategory(category);
+
+			if (titles.length > 0) {
+				callback(null, titles);
+			} else {
+				throw new Error('No book found');
+			}
+		} catch (error) {
+			callback(error, null);
+		}
+	}, 2000);
+}
+
+export const logCategorySearch: LibMgrCallback = function logCategorySearch(err: Error, titles: string[]): void {
+	if (err) {
+		console.log(err.message);
+	} else {
+		console.log(titles);
+	}
+};
+
+console.log('Begin');
+getBookByCategory(Category.JavaScript, logCategorySearch);
+console.log('End');
+
+
+// Task 09.02
+
+function getBookByCategoryPromise(category: Category): Promise<string[]> {
+
+	const p: Promise<string[]> = new Promise<string[]>((resolve, reject) => {
+		setTimeout(() => {
+			try {
+				const titles: string[] = getBookTitlesByCategory(category);
+
+				if (titles.length > 0) {
+					resolve(titles);
+				} else {
+					reject('No book found');
+				}
+			} catch (error) {
+				reject('No book found');
+			}
+		}, 2000);
+	});
+	return p;
+}
+
+
+console.log('Begin');
+getBookByCategoryPromise(Category.JavaScript)
+.then(titles => console.log(titles))
+.then(num => console.log(num))
+.catch(reason => console.log(reason));
+console.log('End');
+
+// Task 09.03
+
+export async function logSearchResult(category: Category): Promise<any> {
+	const titles = await getBookByCategoryPromise(category);
+	console.log(titles);
+}
+
+console.log('Begin');
+logSearchResult(Category.JavaScript)
+.catch(reason => console.log(reason));
+
+// reject example
+// logSearchResult(Category.Software)
+// .catch(reason => console.log(reason));
+console.log('End');
